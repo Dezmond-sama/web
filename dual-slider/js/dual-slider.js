@@ -38,6 +38,8 @@ class DualSlider {
   init() {
     this.setUpperCoord(this.valueToCoords(this.upperValue));
     this.setLowerCoord(this.valueToCoords(this.lowerValue));
+    this.lowerHandler.addEventListener("touchstart", this.mouseDown);
+    this.upperHandler.addEventListener("touchstart", this.mouseDown);
     this.lowerHandler.addEventListener("mousedown", this.mouseDown);
     this.upperHandler.addEventListener("mousedown", this.mouseDown);
     this.lowerHandler.addEventListener("keydown", this.moveSide);
@@ -105,27 +107,44 @@ class DualSlider {
     else this.setLowerCoord(this.lowerHandler.offsetLeft + shiftX);
   }
   mouseDown = (evt) => {
-    evt.preventDefault();
+    if (evt.type === "mousedown") {
+      evt.preventDefault();
+      document.addEventListener("mousemove", this.mouseMove);
+      document.addEventListener("mouseup", this.mouseUp);
+      this.startX = evt.clientX;
+    } else {
+      document.addEventListener("touchmove", this.mouseMove);
+      document.addEventListener("touchend", this.mouseUp);
+      this.startX = evt.touches[0].clientX;
+    }
     let currentHandler = evt.target;
-    console.log(evt.target);
     currentHandler.focus();
     this.upper = currentHandler.classList.contains("dual-slider__handler--right")
-    this.startX = evt.clientX;
 
-    document.addEventListener("mousemove", this.mouseMove);
-    document.addEventListener("mouseup", this.mouseUp);
+
   }
   mouseMove = (evt) => {
-    evt.preventDefault();
-    let shiftX = this.startX - evt.clientX;
-    this.startX = evt.clientX;
+    let shiftX = 0;
+    if (evt.type === "mousemove") {
+      evt.preventDefault();
+      shiftX = this.startX - evt.clientX;
+      this.startX = evt.clientX;
+    } else {
+      shiftX = this.startX - evt.touches[0].clientX;
+      this.startX = evt.touches[0].clientX;
+    }
     if (this.upper) this.setUpperCoord(this.upperHandler.offsetLeft - shiftX);
     else this.setLowerCoord(this.lowerHandler.offsetLeft - shiftX);
   }
   mouseUp = (evt) => {
-    evt.preventDefault();
-    document.removeEventListener("mousemove", this.mouseMove);
-    document.removeEventListener("mouseup", this.mouseUp);
+    if (evt.type === "mouseup") {
+      evt.preventDefault();
+      document.removeEventListener("mousemove", this.mouseMove);
+      document.removeEventListener("mouseup", this.mouseUp);
+    } else {
+      document.removeEventListener("touchmove", this.mouseMove);
+      document.removeEventListener("touchend", this.mouseUp);
+    }
   }
 }
 
