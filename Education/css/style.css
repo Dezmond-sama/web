@@ -700,6 +700,7 @@ body {
   }
 
   .header-menu__list {
+    margin: 0;
     display: block;
     padding: 120px 20px 15px 20px;
   }
